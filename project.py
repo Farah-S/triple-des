@@ -83,3 +83,26 @@ def swap(plain):
 def finalPermutation(plain):
     return '';
 
+#takes input string and transforms it into binary
+def stringToBinray(string):
+    return ''.join(format(i, '08b') for i in bytearray(string, encoding ='utf-8'));
+
+#splits the string into 64 bit blocks
+def divideToBlocks(bin):
+    length=len(bin);
+    if length%64!=0:
+        for j in range(64-length%64):
+            bin=bin+'0';
+        length=len(bin);
+    blocks=[]
+    for i in range(0, length, 64):
+        # print(bin[i:i+64]);
+        blocks.append(bin[i:i+64]);
+    print(blocks)
+
+#--------------------------------------------------------
+
+inputString=input('Enter plain text:');
+binary=stringToBinray(inputString);
+# print(binary);
+divideToBlocks(binary);
