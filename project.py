@@ -43,6 +43,8 @@ s_box8 = [[3, 12, 8, 14, 6, 5, 1, 11, 0, 9, 13, 4, 15, 10, 2, 7],
          [7, 1, 14, 11, 9, 2, 4, 12, 10, 6, 0, 3, 5, 13, 15, 8],
          [12, 11, 4, 7, 14, 0, 8, 3, 5, 2, 9, 10, 13, 15, 6, 1]];
 
+s_boxes = [s_box1, s_box2, s_box3, s_box4, s_box5, s_box6, s_box7, s_box8];
+
 initial_perm = [11,58,33,12,45,1,20,18,13,38, 6,29,9,22,64,60,21,8,36,41, 17,14,54,42,34,30,49,53,56,26, 61,44,50,62,52,47,27,10,39,28, 7,24,57,32,5,63,19,55,30,3, 59,35,40,23,48,4,43,2,51,16, 31,25,46,15];
 
 expansion_perm = [32, 1, 2, 3, 4, 5, 6, 7, 6, 7, 8, 9, 10, 11, 10, 11, 12, 13, 14, 13, 14, 15, 16, 17, 18, 17, 18, 19, 20, 21, 22, 21, 22, 23, 24, 25, 26, 25, 26, 27, 28, 29, 30, 29, 30, 31, 32, 11];
@@ -68,30 +70,30 @@ key_compression = [14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26
 
 #key generation for the 16 rounds
 def generateKeys(key):
-    roundKeys=[];
-    binKey=stringToBinray(key);
+    roundKeys = [];
+    binKey = stringToBinray(key);
     
     #perform parity drop
     key56bit = dropKeyParity(binKey);
     
     #split key
-    leftKey=key56bit[:28];
-    rightKey=key56bit[28:];
+    leftKey = key56bit[:28];
+    rightKey = key56bit[28:];
     
     #get round keys
     for i in range(16):
         #left shift depending on round number
-        shiftedLeft=leftShift(leftKey,left_shift_per_Round[i]);
-        shiftedRight=leftShift(rightKey,left_shift_per_Round[i]);
+        shiftedLeft = leftShift(leftKey, left_shift_per_Round[i]);
+        shiftedRight = leftShift(rightKey, left_shift_per_Round[i]);
         #combine keys again
-        combinedKey=shiftedLeft+shiftedRight;
+        combinedKey = shiftedLeft+shiftedRight;
         #use compression table to get 48 bit key from 56 bits
-        compressedKey=compressKey(combinedKey);
+        compressedKey = compressKey(combinedKey);
         #add key of the i-th round
         roundKeys.append(compressedKey);
         
-        leftKey=shiftedLeft;
-        rightKey=shiftedRight;
+        leftKey = shiftedLeft;
+        rightKey = shiftedRight;
     return roundKeys;
 
 
@@ -126,32 +128,32 @@ def initialPermutation(plain):
 
 
 #expansion permutation
-def expansionPermutation(plain):
+def expansionPermutation(text):
     return '';
 
 
 #XOR with key
-def XOR(plain, key):
+def XOR(text, key):
     return '';
 
 
 #S-Box
-def SBox(plain, s_box):
+def SBox(text):
     return '';
 
 
 #straight permutation
-def straightPermutation(plain):
+def straightPermutation(text):
     return '';
 
 
 #swap
-def swap(plain):
+def swap(text):
     return '';
 
 
 #final permutation
-def finalPermutation(plain):
+def finalPermutation(text):
     return '';
 
 #---------------------------------------------------------------------    
@@ -174,8 +176,8 @@ def binaryToString(binary):
 def divideToBlocks(bin):
     length = len(bin);
     if length % 64 != 0:
-        for j in range(64-length%64):
-            bin = bin+'0';
+        for j in range((64 - length) % 64):
+            bin = bin + '0';
         length = len(bin);
     blocks = []
     for i in range(0, length, 64):
@@ -187,36 +189,56 @@ def divideToBlocks(bin):
 #---------------------------------------------------------------------    
 
 #encyrption and decryption of normal DES
-def DESencrypt(key, block):
-    roundKeys = generateKeys(key);
-    print(roundKeys);
-    return '';
+def DESencrypt(keys, block):
+    afterIP = initialPermutation(block);
+    left = afterIP[:28];
+    right = afterIP[28:];
+    for i in range(16):
+        expanded = expansionPermutation(right);
+        XORed = XOR(expanded,keys[i]);
+        afterSBox = SBox(XORed);
+        perm = straightPermutation(afterSBox);
+        leftXright = XOR(left,perm);
+        left = right;
+        right = leftXright;
+    afterRounds = left + right;
+    swapped = swap(afterRounds);
+    cipher = finalPermutation(swapped);
+    # print(keys);
+    return cipher;
     
     
-def DESdecrypt(key, block):
-    roundKeys = generateKeys(key);
-    print(roundKeys);
-    return '';
+def DESdecrypt(keys, block):
+    roundKeys = keys[::-1] ;
+    return DESencrypt(roundKeys,block);
     
 #---------------------------------------------------------------------    
     
 #encyrption and decryption of triple DES
 def tripleDESencrypt(plainBlocks):
     cipherBinary = '';
+    key1rounds = generateKeys(key1);
+    key2rounds = generateKeys(key2);
+    key3rounds = generateKeys(key3);
+    
     for i in range(len(plainBlocks)):
-        enc1 = DESencrypt(key1,plainBlocks[i]);
-        dec = DESdecrypt(key2,enc1);
-        enc2 = DESencrypt(key3,dec);
+        enc1 = DESencrypt(key1rounds,plainBlocks[i]);
+        dec = DESdecrypt(key2rounds,enc1);
+        enc2 = DESencrypt(key3rounds,dec);
         cipherBinary = cipherBinary + enc2;
     return cipherBinary;
 
 
 def tripleDESdecrypt(cipherBlocks):
     plainBinary = '';
+    key1rounds = generateKeys(key1);
+    key2rounds = generateKeys(key2);
+    key3rounds = generateKeys(key3);
+    
     for i in range(len(cipherBlocks)):
-        dec1 = DESdecrypt(key3,cipherBlocks[i]);
-        enc = DESencrypt(key2,dec1);
-        dec2 = DESdecrypt(key1,enc);
+        dec1 = DESdecrypt(key3rounds, cipherBlocks[i]);
+        enc = DESencrypt(key2rounds, dec1);
+        dec2 = DESdecrypt(key1rounds, enc);
         plainBinary = plainBinary + dec2;
     return plainBinary;
 
