@@ -51,58 +51,184 @@ straight_perm = [6, 17, 2, 12, 28, 21, 29, 7, 1, 5, 31, 26, 15, 18, 23, 11, 20, 
 
 final_perm = [4, 48, 8, 56, 16, 64, 24, 31, 63, 47, 7, 55, 5, 32, 39, 23, 30, 46, 6, 54, 14, 62, 22, 38, 13, 53, 29, 37, 5, 21, 61, 45, 28, 44, 40, 20, 60, 12, 52, 36, 3, 35, 43, 11, 59, 27, 51, 19, 42, 2, 34, 50, 10, 58, 18, 26, 33, 41, 1, 49, 9, 57, 17, 25];
 
-#key generation
+key_parity = [17, 41, 49, 34, 25, 57, 9,
+                18, 50, 58, 26, 33, 42, 1,
+                51, 27, 59, 10, 35, 3, 2,
+                11, 19, 36, 44, 52, 60, 43,
+                23, 5, 47, 31, 39, 63, 55,
+                7, 46, 38, 62, 54, 22, 30,
+                45, 61, 6, 37, 14, 53, 29,
+                12, 4, 15, 20, 28, 21, 13];
+    
+left_shift_per_Round = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1];
+    
+key_compression = [14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26, 8, 16, 7, 27, 20, 13, 2, 41, 52, 31, 37, 47, 55, 30, 40, 51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32];
+
+#---------------------------------------------------------------------    
+
+#key generation for the 16 rounds
 def generateKeys(key):
-    return '';
+    roundKeys=[];
+    binKey=stringToBinray(key);
+    
+    #perform parity drop
+    key56bit = dropKeyParity(binKey);
+    
+    #split key
+    leftKey=key56bit[:28];
+    rightKey=key56bit[28:];
+    
+    #get round keys
+    for i in range(16):
+        #left shift depending on round number
+        shiftedLeft=leftShift(leftKey,left_shift_per_Round[i]);
+        shiftedRight=leftShift(rightKey,left_shift_per_Round[i]);
+        #combine keys again
+        combinedKey=shiftedLeft+shiftedRight;
+        #use compression table to get 48 bit key from 56 bits
+        compressedKey=compressKey(combinedKey);
+        #add key of the i-th round
+        roundKeys.append(compressedKey);
+        
+        leftKey=shiftedLeft;
+        rightKey=shiftedRight;
+    return roundKeys;
+
+
+def dropKeyParity(key):
+    newKey = ''
+    for i in range(len(key_parity)):
+        index = key_parity[i] - 1
+        newKey = newKey + key[index];
+    return newKey;
+
+
+def leftShift(key,shiftAmount):
+    newKey = key[shiftAmount:];
+    for i in range(shiftAmount):
+        newKey = newKey + key[i];
+    return newKey;
+
+
+def compressKey(key):
+    roundKey = '';
+    for i in range(len(key_compression)):
+        index = key_compression[i] - 1;
+        roundKey = roundKey + key[index];
+    # print(len(roundKey));
+    return roundKey;
+
+#---------------------------------------------------------------------    
 
 #initial permutation
 def initialPermutation(plain):
     return '';
 
+
 #expansion permutation
 def expansionPermutation(plain):
     return '';
+
 
 #XOR with key
 def XOR(plain, key):
     return '';
 
+
 #S-Box
 def SBox(plain, s_box):
     return '';
+
 
 #straight permutation
 def straightPermutation(plain):
     return '';
 
+
 #swap
 def swap(plain):
     return '';
+
 
 #final permutation
 def finalPermutation(plain):
     return '';
 
+#---------------------------------------------------------------------    
+
 #takes input string and transforms it into binary
 def stringToBinray(string):
     return ''.join(format(i, '08b') for i in bytearray(string, encoding ='utf-8'));
 
+
+#takes binary and transforms it into string
+def binaryToString(binary):
+    #convert binary to int
+    intString = int(binary, 2);
+    #convert int to hexadecimal
+    hexaString = format(intString, 'x');
+    return(hexaString);
+
+
 #splits the string into 64 bit blocks
 def divideToBlocks(bin):
-    length=len(bin);
-    if length%64!=0:
+    length = len(bin);
+    if length % 64 != 0:
         for j in range(64-length%64):
-            bin=bin+'0';
-        length=len(bin);
-    blocks=[]
+            bin = bin+'0';
+        length = len(bin);
+    blocks = []
     for i in range(0, length, 64):
         # print(bin[i:i+64]);
         blocks.append(bin[i:i+64]);
-    print(blocks)
+    # print(blocks)
+    return blocks;
 
-#--------------------------------------------------------
+#---------------------------------------------------------------------    
 
-inputString=input('Enter plain text:');
-binary=stringToBinray(inputString);
-# print(binary);
-divideToBlocks(binary);
+#encyrption and decryption of normal DES
+def DESencrypt(key, block):
+    roundKeys = generateKeys(key);
+    print(roundKeys);
+    return '';
+    
+    
+def DESdecrypt(key, block):
+    roundKeys = generateKeys(key);
+    print(roundKeys);
+    return '';
+    
+#---------------------------------------------------------------------    
+    
+#encyrption and decryption of triple DES
+def tripleDESencrypt(plainBlocks):
+    cipherBinary = '';
+    for i in range(len(plainBlocks)):
+        enc1 = DESencrypt(key1,plainBlocks[i]);
+        dec = DESdecrypt(key2,enc1);
+        enc2 = DESencrypt(key3,dec);
+        cipherBinary = cipherBinary + enc2;
+    return cipherBinary;
+
+
+def tripleDESdecrypt(cipherBlocks):
+    plainBinary = '';
+    for i in range(len(cipherBlocks)):
+        dec1 = DESdecrypt(key3,cipherBlocks[i]);
+        enc = DESencrypt(key2,dec1);
+        dec2 = DESdecrypt(key1,enc);
+        plainBinary = plainBinary + dec2;
+    return plainBinary;
+
+#---------------------------------------------------------------------    
+
+inputString = input('Enter plain text:');
+binary = stringToBinray(inputString);
+#encrypt
+plainBlocks = divideToBlocks(binary);
+cipherBinary = tripleDESencrypt(plainBlocks);
+cipherText = binaryToString(cipherBinary);
+#decrypt
+cipherBlocks = divideToBlocks(binary);
+plainBinary = tripleDESdecrypt(cipherBlocks);
+plainText = binaryToString(plainBinary);
