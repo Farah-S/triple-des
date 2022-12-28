@@ -1,256 +1,299 @@
-#variables
-key1 = 'A6F42BD15C61F4C9';
-key2 = 'FB36A2C73D2C90E5';
-key3 = '2E4C65A2E836B73A';
+import operator
+# variables
+key1 = 'A6F42BD15C61F4C9'
+key2 = 'FB36A2C73D2C90E5'
+key3 = '2E4C65A2E836B73A'
 
 s_box1 = [[1, 14, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
-         [0, 5, 7, 14, 4, 12, 13, 1, 10, 6, 2, 11, 9, 15, 3, 8],
-         [4, 1, 14, 8, 3, 6, 2, 11, 15, 12, 9, 7, 13, 0, 5, 10],
-         [15, 2, 8, 12, 4, 9, 1, 7, 5, 11, 13, 14, 0, 10, 6, 3]];
+          [0, 5, 7, 14, 4, 12, 13, 1, 10, 6, 2, 11, 9, 15, 3, 8],
+          [4, 1, 14, 8, 3, 6, 2, 11, 15, 12, 9, 7, 13, 0, 5, 10],
+          [15, 2, 8, 12, 4, 9, 1, 7, 5, 11, 13, 14, 0, 10, 6, 3]]
 
 s_box2 = [[5, 11, 8, 14, 6, 1, 13, 4, 9, 7, 12, 3, 2, 10, 15, 0],
-         [13, 3, 14, 7, 15, 12, 8, 4, 2, 0, 10, 11, 6, 9, 1, 5],
-         [10, 4, 7, 1, 0, 14, 13, 11, 15, 8, 12, 9, 6, 3, 5, 2],
-         [3, 8, 0, 11, 13, 15, 4, 12, 1, 6, 7, 2, 10, 5, 14, 9]];
+          [13, 3, 14, 7, 15, 12, 8, 4, 2, 0, 10, 11, 6, 9, 1, 5],
+          [10, 4, 7, 1, 0, 14, 13, 11, 15, 8, 12, 9, 6, 3, 5, 2],
+          [3, 8, 0, 11, 13, 15, 4, 12, 1, 6, 7, 2, 10, 5, 14, 9]]
 
 s_box3 = [[0, 10, 9, 4, 6, 13, 15, 5, 11, 3, 2, 7, 1, 14, 12, 8],
-         [3, 7, 1, 9, 13, 14, 6, 11, 12, 8, 5, 4, 2, 10, 15, 0],
-         [10, 6, 14, 9, 8, 5, 3, 0, 11, 1, 12, 2, 15, 13, 4, 7],
-         [11, 0, 3, 10, 6, 9, 8, 7, 14, 15, 4, 13, 1, 5, 12, 2]];
+          [3, 7, 1, 9, 13, 14, 6, 11, 12, 8, 5, 4, 2, 10, 15, 0],
+          [10, 6, 14, 9, 8, 5, 3, 0, 11, 1, 12, 2, 15, 13, 4, 7],
+          [11, 0, 3, 10, 6, 9, 8, 7, 14, 15, 4, 13, 1, 5, 12, 2]]
 
 s_box4 = [[7, 3, 4, 13, 0, 6, 9, 1, 10, 12, 8, 5, 11, 2, 14, 15],
-         [3, 8, 1, 15, 6, 5, 0, 13, 14, 7, 12, 2, 10, 11, 4, 9],
-         [0, 6, 9, 10, 2, 1, 7, 3, 5, 11, 13, 14, 15, 12, 8, 4],
-         [13, 5, 10, 6, 1, 0, 3, 8, 9, 4, 15, 11, 2, 7, 12, 14]];
+          [3, 8, 1, 15, 6, 5, 0, 13, 14, 7, 12, 2, 10, 11, 4, 9],
+          [0, 6, 9, 10, 2, 1, 7, 3, 5, 11, 13, 14, 15, 12, 8, 4],
+          [13, 5, 10, 6, 1, 0, 3, 8, 9, 4, 15, 11, 2, 7, 12, 14]]
 
 s_box5 = [[12, 2, 14, 10, 7, 11, 1, 6, 8, 15, 13, 5, 3, 0, 4, 9],
-         [4, 1, 12, 2, 14, 7, 3, 11, 15, 10, 5, 0, 13, 9, 8, 6],
-         [14, 12, 10, 1, 11, 3, 7, 8, 5, 9, 2, 15, 6, 13, 0, 4],
-         [1, 8, 2, 7, 11, 4, 12, 3, 6, 5, 10, 9, 0, 14, 15, 13]];
+          [4, 1, 12, 2, 14, 7, 3, 11, 15, 10, 5, 0, 13, 9, 8, 6],
+          [14, 12, 10, 1, 11, 3, 7, 8, 5, 9, 2, 15, 6, 13, 0, 4],
+          [1, 8, 2, 7, 11, 4, 12, 3, 6, 5, 10, 9, 0, 14, 15, 13]]
 
 s_box6 = [[2, 10, 11, 5, 9, 12, 6, 8, 0, 3, 13, 14, 4, 7, 15, 1],
-         [0, 5, 14, 12, 7, 2, 9, 15, 6, 11, 3, 4, 10, 1, 13, 8],
-         [9, 4, 5, 15, 12, 8, 2, 13, 7, 10, 14, 0, 11, 3, 1, 6],
-         [14, 13, 12, 2, 9, 15, 5, 0, 1, 4, 11, 7, 6, 10, 8, 3]];
+          [0, 5, 14, 12, 7, 2, 9, 15, 6, 11, 3, 4, 10, 1, 13, 8],
+          [9, 4, 5, 15, 12, 8, 2, 13, 7, 10, 14, 0, 11, 3, 1, 6],
+          [14, 13, 12, 2, 9, 15, 5, 0, 1, 4, 11, 7, 6, 10, 8, 3]]
 
 s_box7 = [[14, 1, 12, 4, 5, 10, 8, 3, 13, 2, 9, 7, 15, 0, 6, 11],
-         [3, 10, 1, 7, 14, 9, 11, 0, 4, 13, 15, 2, 12, 5, 8, 6],
-         [11, 14, 1, 3, 2, 13, 7, 4, 0, 5, 6, 8, 10, 15, 9, 12],
-         [6, 1, 3, 8, 11, 14, 0, 7, 9, 15, 10, 5, 4, 12, 13, 2]];
+          [3, 10, 1, 7, 14, 9, 11, 0, 4, 13, 15, 2, 12, 5, 8, 6],
+          [11, 14, 1, 3, 2, 13, 7, 4, 0, 5, 6, 8, 10, 15, 9, 12],
+          [6, 1, 3, 8, 11, 14, 0, 7, 9, 15, 10, 5, 4, 12, 13, 2]]
 
 s_box8 = [[3, 12, 8, 14, 6, 5, 1, 11, 0, 9, 13, 4, 15, 10, 2, 7],
-         [11, 5, 3, 8, 0, 13, 7, 14, 2, 15, 6, 1, 10, 4, 9, 12],
-         [7, 1, 14, 11, 9, 2, 4, 12, 10, 6, 0, 3, 5, 13, 15, 8],
-         [12, 11, 4, 7, 14, 0, 8, 3, 5, 2, 9, 10, 13, 15, 6, 1]];
+          [11, 5, 3, 8, 0, 13, 7, 14, 2, 15, 6, 1, 10, 4, 9, 12],
+          [7, 1, 14, 11, 9, 2, 4, 12, 10, 6, 0, 3, 5, 13, 15, 8],
+          [12, 11, 4, 7, 14, 0, 8, 3, 5, 2, 9, 10, 13, 15, 6, 1]]
 
-s_boxes = [s_box1, s_box2, s_box3, s_box4, s_box5, s_box6, s_box7, s_box8];
+s_boxes = [s_box1, s_box2, s_box3, s_box4, s_box5, s_box6, s_box7, s_box8]
 
-initial_perm = [11,58,33,12,45,1,20,18,13,38, 6,29,9,22,64,60,21,8,36,41, 17,14,54,42,34,30,49,53,56,26, 61,44,50,62,52,47,27,10,39,28, 7,24,57,32,5,63,19,55,30,3, 59,35,40,23,48,4,43,2,51,16, 31,25,46,15];
+initial_perm = [11, 58, 33, 12, 45, 1, 20, 18, 13, 38, 6, 29, 9, 22, 64, 60, 21, 8, 36, 41, 17, 14, 54, 42, 34, 30, 49, 53, 56, 26,
+                61, 44, 50, 62, 52, 47, 27, 10, 39, 28, 7, 24, 57, 32, 5, 63, 19, 55, 30, 3, 59, 35, 40, 23, 48, 4, 43, 2, 51, 16, 31, 25, 46, 15]
 
-expansion_perm = [32, 1, 2, 3, 4, 5, 6, 7, 6, 7, 8, 9, 10, 11, 10, 11, 12, 13, 14, 13, 14, 15, 16, 17, 18, 17, 18, 19, 20, 21, 22, 21, 22, 23, 24, 25, 26, 25, 26, 27, 28, 29, 30, 29, 30, 31, 32, 11];
+expansion_perm = [32, 1, 2, 3, 4, 5, 6, 7, 6, 7, 8, 9, 10, 11, 10, 11, 12, 13, 14, 13, 14, 15, 16,
+                  17, 18, 17, 18, 19, 20, 21, 22, 21, 22, 23, 24, 25, 26, 25, 26, 27, 28, 29, 30, 29, 30, 31, 32, 11]
 
-straight_perm = [6, 17, 2, 12, 28, 21, 29, 7, 1, 5, 31, 26, 15, 18, 23, 11, 20, 8, 25, 4, 32, 30, 3, 19, 9, 13, 27, 16, 22, 10, 14, 24];
+straight_perm = [6, 17, 2, 12, 28, 21, 29, 7, 1, 5, 31, 26, 15, 18,
+                 23, 11, 20, 8, 25, 4, 32, 30, 3, 19, 9, 13, 27, 16, 22, 10, 14, 24]
 
-final_perm = [4, 48, 8, 56, 16, 64, 24, 31, 63, 47, 7, 55, 5, 32, 39, 23, 30, 46, 6, 54, 14, 62, 22, 38, 13, 53, 29, 37, 5, 21, 61, 45, 28, 44, 40, 20, 60, 12, 52, 36, 3, 35, 43, 11, 59, 27, 51, 19, 42, 2, 34, 50, 10, 58, 18, 26, 33, 41, 1, 49, 9, 57, 17, 25];
+final_perm = [4, 48, 8, 56, 16, 64, 24, 31, 63, 47, 7, 55, 5, 32, 39, 23, 30, 46, 6, 54, 14, 62, 22, 38, 13, 53, 29, 37, 5, 21, 61,
+              45, 28, 44, 40, 20, 60, 12, 52, 36, 3, 35, 43, 11, 59, 27, 51, 19, 42, 2, 34, 50, 10, 58, 18, 26, 33, 41, 1, 49, 9, 57, 17, 25]
 
 key_parity = [17, 41, 49, 34, 25, 57, 9,
-                18, 50, 58, 26, 33, 42, 1,
-                51, 27, 59, 10, 35, 3, 2,
-                11, 19, 36, 44, 52, 60, 43,
-                23, 5, 47, 31, 39, 63, 55,
-                7, 46, 38, 62, 54, 22, 30,
-                45, 61, 6, 37, 14, 53, 29,
-                12, 4, 15, 20, 28, 21, 13];
-    
-left_shift_per_Round = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1];
-    
-key_compression = [14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26, 8, 16, 7, 27, 20, 13, 2, 41, 52, 31, 37, 47, 55, 30, 40, 51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32];
+              18, 50, 58, 26, 33, 42, 1,
+              51, 27, 59, 10, 35, 3, 2,
+              11, 19, 36, 44, 52, 60, 43,
+              23, 5, 47, 31, 39, 63, 55,
+              7, 46, 38, 62, 54, 22, 30,
+              45, 61, 6, 37, 14, 53, 29,
+              12, 4, 15, 20, 28, 21, 13]
 
-#---------------------------------------------------------------------    
+left_shift_per_Round = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
 
-#key generation for the 16 rounds
+key_compression = [14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26, 8, 16, 7, 27, 20, 13,
+                   2, 41, 52, 31, 37, 47, 55, 30, 40, 51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32]
+
+# ---------------------------------------------------------------------
+
+# key generation for the 16 rounds
+
+
 def generateKeys(key):
-    roundKeys = [];
-    binKey = stringToBinray(key);
-    
-    #perform parity drop
-    key56bit = dropKeyParity(binKey);
-    
-    #split key
-    leftKey = key56bit[:28];
-    rightKey = key56bit[28:];
-    
-    #get round keys
+    roundKeys = []
+    binKey = stringToBinray(key)
+
+    # perform parity drop
+    key56bit = dropKeyParity(binKey)
+
+    # split key
+    leftKey = key56bit[:28]
+    rightKey = key56bit[28:]
+
+    # get round keys
     for i in range(16):
-        #left shift depending on round number
-        shiftedLeft = leftShift(leftKey, left_shift_per_Round[i]);
-        shiftedRight = leftShift(rightKey, left_shift_per_Round[i]);
-        #combine keys again
-        combinedKey = shiftedLeft+shiftedRight;
-        #use compression table to get 48 bit key from 56 bits
-        compressedKey = compressKey(combinedKey);
-        #add key of the i-th round
-        roundKeys.append(compressedKey);
-        
-        leftKey = shiftedLeft;
-        rightKey = shiftedRight;
-    return roundKeys;
+        # left shift depending on round number
+        shiftedLeft = leftShift(leftKey, left_shift_per_Round[i])
+        shiftedRight = leftShift(rightKey, left_shift_per_Round[i])
+        # combine keys again
+        combinedKey = shiftedLeft+shiftedRight
+        # use compression table to get 48 bit key from 56 bits
+        compressedKey = compressKey(combinedKey)
+        # add key of the i-th round
+        roundKeys.append(compressedKey)
+
+        leftKey = shiftedLeft
+        rightKey = shiftedRight
+    return roundKeys
 
 
 def dropKeyParity(key):
     newKey = ''
     for i in range(len(key_parity)):
         index = key_parity[i] - 1
-        newKey = newKey + key[index];
-    return newKey;
+        newKey = newKey + key[index]
+    return newKey
 
 
-def leftShift(key,shiftAmount):
-    newKey = key[shiftAmount:];
+def leftShift(key, shiftAmount):
+    newKey = key[shiftAmount:]
     for i in range(shiftAmount):
-        newKey = newKey + key[i];
-    return newKey;
+        newKey = newKey + key[i]
+    return newKey
 
 
 def compressKey(key):
-    roundKey = '';
+    roundKey = ''
     for i in range(len(key_compression)):
-        index = key_compression[i] - 1;
-        roundKey = roundKey + key[index];
+        index = key_compression[i] - 1
+        roundKey = roundKey + key[index]
     # print(len(roundKey));
-    return roundKey;
+    return roundKey
 
-#---------------------------------------------------------------------    
+# ---------------------------------------------------------------------
 
-#initial permutation
+# initial permutation
+
+
 def initialPermutation(plain):
-    return '';
+    return ''
 
 
-#expansion permutation
+# expansion permutation
 def expansionPermutation(text):
-    return '';
+    return ''
 
 
-#XOR with key
-def XOR(text, key):
-    return '';
+# XOR with key
+def XOR(value1, value2):
+    c = int(value1, 2) ^ int(value2, 2)
+    print('{0:b}'.format(c))
+    return c
 
 
-#S-Box
+# S-Box
 def SBox(text):
-    return '';
+    six_bit_array = []
+    j = 0
+    final_s_box_output = ''
+
+    for i in range(0, 48, 6):
+        six_bit_array.append(text[i:i+6])
+
+    # 101100
+    for i in six_bit_array:
+        first_elemnt = i[0:1]
+        last_elemnt = i[5:6]
+        row_num = first_elemnt+last_elemnt
+        # converting the binary string to decimal int
+        row_num = int(row_num, 2)
+
+        column_num = i[1:5]
+        # converting the binary string to decimal int
+        column_num = int(column_num, 2)
+
+        current_s_box = s_boxes[j]
+        row_and_column_intersection = current_s_box[row_num][column_num]
+        final_s_box_output += bin(row_and_column_intersection).replace("0b", "")
+        j += 1
+
+    return final_s_box_output
 
 
-#straight permutation
+# straight permutation
 def straightPermutation(text):
-    return '';
+    return ''
 
 
-#swap
+# swap
 def swap(text):
-    return '';
+    return ''
 
 
-#final permutation
+# final permutation
 def finalPermutation(text):
-    return '';
+    return ''
 
-#---------------------------------------------------------------------    
+# ---------------------------------------------------------------------
 
-#takes input string and transforms it into binary
+# takes input string and transforms it into binary
+
+
 def stringToBinray(string):
-    return ''.join(format(i, '08b') for i in bytearray(string, encoding ='utf-8'));
+    return ''.join(format(i, '08b') for i in bytearray(string, encoding='utf-8'))
 
 
-#takes binary and transforms it into string
+# takes binary and transforms it into string
 def binaryToString(binary):
-    #convert binary to int
-    intString = int(binary, 2);
-    #convert int to hexadecimal
-    hexaString = format(intString, 'x');
-    return(hexaString);
+    # convert binary to int
+    intString = int(binary, 2)
+    # convert int to hexadecimal
+    hexaString = format(intString, 'x')
+    return (hexaString)
 
 
-#splits the string into 64 bit blocks
+# splits the string into 64 bit blocks
 def divideToBlocks(bin):
-    length = len(bin);
+    length = len(bin)
     if length % 64 != 0:
         for j in range((64 - length) % 64):
-            bin = bin + '0';
-        length = len(bin);
+            bin = bin + '0'
+        length = len(bin)
     blocks = []
     for i in range(0, length, 64):
         # print(bin[i:i+64]);
-        blocks.append(bin[i:i+64]);
+        blocks.append(bin[i:i+64])
     # print(blocks)
-    return blocks;
+    return blocks
 
-#---------------------------------------------------------------------    
+# ---------------------------------------------------------------------
 
-#encyrption and decryption of normal DES
+# encyrption and decryption of normal DES
+
+
 def DESencrypt(keys, block):
-    afterIP = initialPermutation(block);
-    left = afterIP[:28];
-    right = afterIP[28:];
+    afterIP = initialPermutation(block)
+    left = afterIP[:28]
+    right = afterIP[28:]
     for i in range(16):
-        expanded = expansionPermutation(right);
-        XORed = XOR(expanded,keys[i]);
-        afterSBox = SBox(XORed);
-        perm = straightPermutation(afterSBox);
-        leftXright = XOR(left,perm);
-        left = right;
-        right = leftXright;
-    afterRounds = left + right;
-    swapped = swap(afterRounds);
-    cipher = finalPermutation(swapped);
+        expanded = expansionPermutation(right)
+        XORed = XOR(expanded, keys[i])
+        afterSBox = SBox(XORed)
+        perm = straightPermutation(afterSBox)
+        leftXright = XOR(left, perm)
+        left = right
+        right = leftXright
+    afterRounds = left + right
+    swapped = swap(afterRounds)
+    cipher = finalPermutation(swapped)
     # print(keys);
-    return cipher;
-    
-    
+    return cipher
+
+
 def DESdecrypt(keys, block):
-    roundKeys = keys[::-1] ;
-    return DESencrypt(roundKeys,block);
-    
-#---------------------------------------------------------------------    
-    
-#encyrption and decryption of triple DES
+    roundKeys = keys[::-1]
+    return DESencrypt(roundKeys, block)
+
+# ---------------------------------------------------------------------
+
+# encyrption and decryption of triple DES
+
+
 def tripleDESencrypt(plainBlocks):
-    cipherBinary = '';
-    key1rounds = generateKeys(key1);
-    key2rounds = generateKeys(key2);
-    key3rounds = generateKeys(key3);
-    
+    cipherBinary = ''
+    key1rounds = generateKeys(key1)
+    key2rounds = generateKeys(key2)
+    key3rounds = generateKeys(key3)
+
     for i in range(len(plainBlocks)):
-        enc1 = DESencrypt(key1rounds,plainBlocks[i]);
-        dec = DESdecrypt(key2rounds,enc1);
-        enc2 = DESencrypt(key3rounds,dec);
-        cipherBinary = cipherBinary + enc2;
-    return cipherBinary;
+        enc1 = DESencrypt(key1rounds, plainBlocks[i])
+        dec = DESdecrypt(key2rounds, enc1)
+        enc2 = DESencrypt(key3rounds, dec)
+        cipherBinary = cipherBinary + enc2
+    return cipherBinary
 
 
 def tripleDESdecrypt(cipherBlocks):
-    plainBinary = '';
-    key1rounds = generateKeys(key1);
-    key2rounds = generateKeys(key2);
-    key3rounds = generateKeys(key3);
-    
+    plainBinary = ''
+    key1rounds = generateKeys(key1)
+    key2rounds = generateKeys(key2)
+    key3rounds = generateKeys(key3)
+
     for i in range(len(cipherBlocks)):
-        dec1 = DESdecrypt(key3rounds, cipherBlocks[i]);
-        enc = DESencrypt(key2rounds, dec1);
-        dec2 = DESdecrypt(key1rounds, enc);
-        plainBinary = plainBinary + dec2;
-    return plainBinary;
+        dec1 = DESdecrypt(key3rounds, cipherBlocks[i])
+        enc = DESencrypt(key2rounds, dec1)
+        dec2 = DESdecrypt(key1rounds, enc)
+        plainBinary = plainBinary + dec2
+    return plainBinary
 
-#---------------------------------------------------------------------    
+# ---------------------------------------------------------------------
 
-inputString = input('Enter plain text:');
-binary = stringToBinray(inputString);
-#encrypt
-plainBlocks = divideToBlocks(binary);
-cipherBinary = tripleDESencrypt(plainBlocks);
-cipherText = binaryToString(cipherBinary);
-#decrypt
-cipherBlocks = divideToBlocks(binary);
-plainBinary = tripleDESdecrypt(cipherBlocks);
-plainText = binaryToString(plainBinary);
+
+inputString = input('Enter plain text:')
+binary = stringToBinray(inputString)
+# encrypt
+plainBlocks = divideToBlocks(binary)
+cipherBinary = tripleDESencrypt(plainBlocks)
+cipherText = binaryToString(cipherBinary)
+# decrypt
+cipherBlocks = divideToBlocks(binary)
+plainBinary = tripleDESdecrypt(cipherBlocks)
+plainText = binaryToString(plainBinary)
