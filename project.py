@@ -144,8 +144,15 @@ def expansionPermutation(text):
 
 # XOR with key
 def XOR(value1, value2):
-    c = int(value1, 2) ^ int(value2, 2)
-    print('{0:b}'.format(c))
+    a_lenght=len(value1)
+    b_lenght=len(value1)
+    c_original_lenght=max(a_lenght,b_lenght)
+
+    c = int(value1,2) ^ int(value1,2)
+    c='{0:b}'.format(c)
+    c=str(c)
+    while (len(c)<c_original_lenght):
+        c="0"+c
     return c
 
 
@@ -172,7 +179,13 @@ def SBox(text):
 
         current_s_box = s_boxes[j]
         row_and_column_intersection = current_s_box[row_num][column_num]
-        final_s_box_output += bin(row_and_column_intersection).replace("0b", "")
+        row_and_column_intersection=bin(row_and_column_intersection).replace("0b", "")
+        row_and_column_intersection=str(row_and_column_intersection)
+        while(len(row_and_column_intersection)<4):
+            row_and_column_intersection="0"+row_and_column_intersection
+        row_and_column_intersection=bin(row_and_column_intersection).replace("0b", "")
+        
+        final_s_box_output += row_and_column_intersection
         j += 1
 
     return final_s_box_output
