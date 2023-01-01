@@ -1,3 +1,5 @@
+import operator
+import unicodedata
 # variables
 key1 = 'A6F42BD15C61F4C9'
 key2 = 'FB36A2C73D2C90E5'
@@ -94,8 +96,14 @@ key_compression = [14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26
 # key generation for the 16 rounds
 def generateKeys(key):
     roundKeys = []
-    binKey = stringToBinary(key)
-
+    # binKey = stringToBinary(key)
+    
+    int_value = int(key, base=16)
+    binKey = bin(int_value).replace('0b','')
+    # print(binKey)
+    if(len(binKey)<64):
+        while len(binKey)<64:
+            binKey='0'+binKey
     # perform parity drop
     key56bit = dropKeyParity(binKey)
 
@@ -145,14 +153,50 @@ def compressKey(key):
 
 # ---------------------------------------------------------------------
 
+
+
+def straightPermutation(text):
+    y=""
+    for i in range(len(straight_perm)):
+        y+=text[straight_perm[i]-1]
+    return y
+
+
+# swap
+def swap(text):
+    i = int(len(text)/2)
+    return (text[i:] + text[:i])
+
+
+# final permutation
+def finalPermutation(text):
+    y=""
+    for i in range(len(final_perm)):
+        y=y+text[(final_perm[i]-1)]
+    return y
+
+
+
+
+
+
 # initial permutation
-def initialPermutation(plain):
-    return ''
+def initialPermutation(plain): 
+    x = "" 
+    for i in range(len(initial_perm)):  
+          x = x + plain[initial_perm[i]-1]
+    return x
+
 
 
 # expansion permutation
 def expansionPermutation(text):
-    return ''
+    x = "" 
+    for i in range(len(expansion_perm)):
+        x += text[expansion_perm[i] - 1]  
+       
+    return x
+
 
 
 # XOR with key
@@ -205,37 +249,59 @@ def SBox(text):
 
 
 # straight permutation
-def straightPermutation(text):
-    y=""
-    for i in range(len(straight_perm)):
-        y+=text[straight_perm[i]-1]
-    return y
+# def straightPermutation(text):
+#     newText = ''
+#     for i in range(len(straight_perm)):
+#         index = straight_perm[i] - 1
+#         newText = newText + text[index]
+#     return newText
 
 
 # swap
-def swap(text):
-    i = int(len(text)/2)
-    return (text[i:] + text[:i])
+# def swap(text):
+#     temp=text[int((len(text)/2)):]
+#     temp2=text[:int((len(text)/2))]
+#     # print(temp)
+#     # print(temp2)
+#     return temp+temp2
 
 
 # final permutation
-def finalPermutation(text):
-    y=""
-    for i in range(len(final_perm)):
-        y=y+text[(final_perm[i]-1)]
-    return y
+# def finalPermutation(text):
+#     newText = ''
+#     for i in range(len(final_perm)):
+#         index = final_perm[i] - 1
+#         newText = newText + text[index]
+#     return newText
 
 # ---------------------------------------------------------------------
 
+def binToHexa(n):
+    
+    # convert binary to int
+    num = int(n, 2)
+      
+    # convert int to hexadecimal
+    hex_num = hex(num)
+    return(hex_num)
+
+
+def hexToBin(e):
+    # hex_value = "1f"
+    # Convert to Integer
+    int_value = int(e, base=16)
+
+    # Convert integer to a binary value
+    bin_value = bin(int_value)
+    return bin_value
+
 # takes input string and transforms it into binary
-
-
 def toString(binaryString):
     return "".join([chr(int(binaryString[i:i+8],2)) for i in range(0,len(binaryString),8)])
 
 
 def stringToBinary(string):
-    return ''.join(format(i, '08b') for i in bytearray(string, encoding='utf-8'))
+    return ''.join(format(ord(x), '08b') for x in string)  
 
 
 # splits the string into 64 bit blocks
@@ -255,8 +321,6 @@ def divideToBlocks(bin):
 # ---------------------------------------------------------------------
 
 # encyrption and decryption of normal DES
-
-
 def DESencrypt(keys, block):
     afterIP = initialPermutation(block)
     left = afterIP[:int(len(afterIP)/2)]
@@ -287,14 +351,12 @@ def DESencrypt(keys, block):
 
 
 def DESdecrypt(keys, block):
-    roundsK = keys[::-1]
-    return DESencrypt(roundsK, block)
+    rouneys = keys[::-1]
+    return DESencrypt(rouneys, block)
 
 # ---------------------------------------------------------------------
 
 # encyrption and decryption of triple DES
-
-
 def tripleDESencrypt(blocks):
     cipherBin = ''
     key1rounds = generateKeys(key1)
@@ -302,24 +364,24 @@ def tripleDESencrypt(blocks):
     key3rounds = generateKeys(key3)
 
     for i in range(len(blocks)):
-        print("encrypt")
+        # print("encrypt")
         enc1 = DESencrypt(key1rounds, blocks[i])
-        print("decrypt")
+        # print("decrypt")
         dec = DESdecrypt(key2rounds, enc1)
-        print("encrypt")
+        # print("encrypt")
         enc2 = DESencrypt(key3rounds, dec)
         cipherBin = cipherBin + enc2
     return cipherBin
 
 
-def tripleDESdecrypt(blocks):
+def tripleDESdecrypt(cipherBlocks):
     plainBin = ''
     key1rounds = generateKeys(key1)
     key2rounds = generateKeys(key2)
     key3rounds = generateKeys(key3)
 
-    for i in range(len(blocks)):
-        dec1 = DESdecrypt(key3rounds, blocks[i])
+    for i in range(len(cipherBlocks)):
+        dec1 = DESdecrypt(key3rounds, cipherBlocks[i])
         enc = DESencrypt(key2rounds, dec1)
         dec2 = DESdecrypt(key1rounds, enc)
         plainBin = plainBin + dec2
@@ -327,34 +389,49 @@ def tripleDESdecrypt(blocks):
 
 # ---------------------------------------------------------------------
 
+inputString=''
+while(True):
+    choice=input('Pick one: \n1) Plaintext\n2) Ciphertext\n3) Exit\n');
+    if(choice=='1'):
+        inputString = input('Enter plaintext:');
+        originalbinary = stringToBinary(inputString);
+        plainBlocks = divideToBlocks((originalbinary));
+        cipherBinary = tripleDESencrypt(plainBlocks);
+        cipherText=binToHexa(cipherBinary).replace('0x','')
+        print(cipherText)
+        
+    elif(choice=='2'):
+        inputString = input('Enter ciphertext in hex:');
+        originalbinary = hexToBin(inputString).replace('0b','')
+        cipherBlocks = divideToBlocks(originalbinary)
+        plainBinary = tripleDESdecrypt(cipherBlocks)
+        plainText = toString(plainBinary)
+        print(plainText)
+        
+    elif(choice=='3'):
+        break;
+    else:
+        print('Invalid input');
+        
 
-# inputString = input('Enter plain text:')
-# binary = stringToBinary(inputString)
-# # encrypt
-# plainBlocks = divideToBlocks(binary)
-# cipherBinary = tripleDESencrypt(plainBlocks)
-# cipherText = toString(cipherBinary)
-# # decrypt
-# cipherBlocks = divideToBlocks(binary)
-# plainBinary = tripleDESdecrypt(cipherBlocks)
-# plainText = toString(plainBinary)
 
+# inputString = input('Enter plaintext:');
 
-
-
-inputString = input('Enter plain text:')
-# print(originalbinary)
-# encrypt
-originalbinary = stringToBinary(inputString)
-plainBlocks = divideToBlocks((originalbinary))
+# originalbinary = stringToBinary(inputString)
+# # # encrypt
+# plainBlocks = divideToBlocks((originalbinary))
 # print(plainBlocks)
-cipherBinary = tripleDESencrypt(plainBlocks)
-cipherText = toString(cipherBinary)
-print(cipherText)
 
-# decrypt
-cipherBlocks = divideToBlocks(cipherBinary)
-plainBinary = tripleDESdecrypt(cipherBlocks)
-plainText = toString(plainBinary)
-# print(plainBinary)
-print( plainText)
+# cipherBinary = tripleDESencrypt(plainBlocks)
+# print(cipherBinary)
+
+# cipherText = toString(cipherBinary)
+# print(stringToBinary(cipherText))
+
+# # decrypt
+# cipherBlocks = divideToBlocks(cipherBinary)
+# # print(cipherBlocks)
+# plainBinary = tripleDESdecrypt(cipherBlocks)
+# # plainText = binaryToString(plainBinary)
+# plainText = toString(plainBinary)
+# print(plainText)
