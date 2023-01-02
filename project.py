@@ -96,14 +96,14 @@ key_compression = [14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26
 # key generation for the 16 rounds
 def generateKeys(key):
     roundKeys = []
-    # binKey = stringToBinary(key)
-    
+    #turn key into binary
     int_value = int(key, base=16)
     binKey = bin(int_value).replace('0b','')
-    # print(binKey)
-    if(len(binKey)<64):
-        while len(binKey)<64:
-            binKey='0'+binKey
+    
+    if(len(binKey) < 64):
+        while len(binKey) < 64:
+            binKey = '0' + binKey
+            
     # perform parity drop
     key56bit = dropKeyParity(binKey)
 
@@ -122,7 +122,7 @@ def generateKeys(key):
         compressedKey = compressKey(combinedKey)
         # add key of the i-th round
         roundKeys.append(compressedKey)
-
+        #prepare keys for next iteration
         leftKey = shiftedLeft
         rightKey = shiftedRight
     return roundKeys
@@ -130,6 +130,7 @@ def generateKeys(key):
 
 def dropKeyParity(key):
     newKey = ''
+    #drop bits from the key to make it 56 bits
     for i in range(len(key_parity)):
         index = key_parity[i] - 1
         newKey = newKey + key[index]
@@ -137,6 +138,7 @@ def dropKeyParity(key):
 
 
 def leftShift(key, shiftAmount):
+    #left shift a specific amount depending on round number
     newKey = key[shiftAmount:]
     for i in range(shiftAmount):
         newKey = newKey + key[i]
@@ -145,6 +147,7 @@ def leftShift(key, shiftAmount):
 
 def compressKey(key):
     roundKey = ''
+    #get 48 bits from the 56
     for i in range(len(key_compression)):
         index = key_compression[i] - 1
         roundKey = roundKey + key[index]
@@ -154,7 +157,7 @@ def compressKey(key):
 # ---------------------------------------------------------------------
 
 
-
+#perform straight permutation
 def straightPermutation(text):
     y=""
     for i in range(len(straight_perm)):
@@ -199,7 +202,7 @@ def expansionPermutation(text):
 
 
 
-# XOR with key
+# XOR 
 def XOR(value1, value2):
     a_lenght=len(value1)
     b_lenght=len(value2)
@@ -224,73 +227,48 @@ def SBox(text):
 
     # 101100
     for i in six_bit_array:
+        #get first bit
         first_elemnt = i[0:1]
+        ##get last bit
         last_elemnt = i[5:6]
+        #concat first and last bits
         row_num = first_elemnt+last_elemnt
         # converting the binary string to decimal int
         row_num = int(row_num, 2)
-
+        #get all bits except the first and last
         column_num = i[1:5]
         # converting the binary string to decimal int
         column_num = int(column_num, 2)
-
+        #get sbox for this iteration
         current_s_box = s_boxes[j]
+        #look up the value in sbox
         row_and_column_intersection = current_s_box[row_num][column_num]
+        #turn value from decimal to binary
         row_and_column_intersection=bin(row_and_column_intersection).replace("0b", "")
         row_and_column_intersection=str(row_and_column_intersection)
         while(len(row_and_column_intersection)<4):
+            #make sure the value is 4 bits not less
             row_and_column_intersection="0"+row_and_column_intersection
-        # row_and_column_intersection=bin(row_and_column_intersection).replace("0b", "")
-        
+        #concant the i-th sbox value to the output
         final_s_box_output += row_and_column_intersection
         j += 1
 
     return final_s_box_output
 
 
-# straight permutation
-# def straightPermutation(text):
-#     newText = ''
-#     for i in range(len(straight_perm)):
-#         index = straight_perm[i] - 1
-#         newText = newText + text[index]
-#     return newText
-
-
-# swap
-# def swap(text):
-#     temp=text[int((len(text)/2)):]
-#     temp2=text[:int((len(text)/2))]
-#     # print(temp)
-#     # print(temp2)
-#     return temp+temp2
-
-
-# final permutation
-# def finalPermutation(text):
-#     newText = ''
-#     for i in range(len(final_perm)):
-#         index = final_perm[i] - 1
-#         newText = newText + text[index]
-#     return newText
-
 # ---------------------------------------------------------------------
 
 def binToHexa(n):
-    
     # convert binary to int
     num = int(n, 2)
-      
     # convert int to hexadecimal
     hex_num = hex(num)
     return(hex_num)
 
 
 def hexToBin(e):
-    # hex_value = "1f"
     # Convert to Integer
     int_value = int(e, base=16)
-
     # Convert integer to a binary value
     bin_value = bin(int_value)
     return bin_value
@@ -304,18 +282,17 @@ def stringToBinary(string):
     return ''.join(format(ord(x), '08b') for x in string)  
 
 
-# splits the string into 64 bit blocks
+# splits the binary string into 64 bit blocks
 def divideToBlocks(bin):
     length = len(bin)
+    #make sure the len of the bin is divisble by 64
     if length % 64 != 0:
         for j in range((64 - length) % 64):
-            bin = '0'+bin 
+            bin = '0' + bin 
         length = len(bin)
     blocks = []
     for i in range(0, length, 64):
-        # print(bin[i:i+64]);
         blocks.append(bin[i:i+64])
-    # print(blocks)
     return blocks
 
 # ---------------------------------------------------------------------
@@ -324,29 +301,19 @@ def divideToBlocks(bin):
 def DESencrypt(keys, block):
     afterIP = initialPermutation(block)
     left = afterIP[:int(len(afterIP)/2)]
-
     right = afterIP[int(len(afterIP)/2):]
-    
     for i in range(16):
-        # print(len(right))
         expanded = expansionPermutation(right)
-        # print(len(expanded))
         XORed = XOR(expanded, keys[i])
         afterSBox = SBox(XORed)
-        # print(afterSBox)
         perm = straightPermutation(afterSBox)
         leftXright = XOR(left, perm)
-        # print('ddddddddddddddddddd')
-        # print(len(right))
-        # print(len(leftXright))
         left = right
         right = leftXright
        
-        # print("round "+str(i+1)+": " +toString(left+right))
     afterRounds = left + right
     swapped = swap(afterRounds)
     cipher = finalPermutation(swapped)
-    # print(keys);
     return cipher
 
 
@@ -364,11 +331,8 @@ def tripleDESencrypt(blocks):
     key3rounds = generateKeys(key3)
 
     for i in range(len(blocks)):
-        # print("encrypt")
         enc1 = DESencrypt(key1rounds, blocks[i])
-        # print("decrypt")
         dec = DESdecrypt(key2rounds, enc1)
-        # print("encrypt")
         enc2 = DESencrypt(key3rounds, dec)
         cipherBin = cipherBin + enc2
     return cipherBin
@@ -401,7 +365,7 @@ while(True):
         print(cipherText)
         
     elif(choice=='2'):
-        inputString = input('Enter ciphertext in hex:');
+        inputString = input('Enter ciphertext in hex: ');
         originalbinary = hexToBin(inputString).replace('0b','')
         cipherBlocks = divideToBlocks(originalbinary)
         plainBinary = tripleDESdecrypt(cipherBlocks)
